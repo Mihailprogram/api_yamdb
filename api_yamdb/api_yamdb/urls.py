@@ -9,14 +9,14 @@ router.register('titles', TitleViewSet)
 router.register('genres', GenreViewSet)
 router.register('categories', CategoryViewSet)
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include(router.urls)),
+    path('api/', include('reviews.urls')),
     path(
         'redoc/',
         TemplateView.as_view(template_name='redoc.html'),
         name='redoc'
-    ),
+    )
     path('api/v1/user/', include("user.urls"))
 ]
