@@ -14,7 +14,7 @@ class ReviewsSerializer(serializers.ModelSerializer):
         return value
 
     class Meta:
-        fields = ('id', 'title', 'text', 'author', 'score', 'pub_date')
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Reviews
 
 
@@ -29,5 +29,5 @@ class CommentsSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'text', 'author', 'pub_date',)
         model = Comments
