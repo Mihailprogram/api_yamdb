@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from titles.models import Title
+from user.models import CustomUser
 
 User = get_user_model()
 
@@ -10,7 +11,7 @@ class Reviews(models.Model):
     pub_date = models.DateTimeField(auto_now_add=True)
     score = models.IntegerField()
     author = models.ForeignKey(
-        User,
+        CustomUser,
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='автор'
@@ -33,7 +34,7 @@ class Comments:
         related_name='comments'
     )
     author = models.ForeignKey(
-        User,
+        CustomUser,
         on_delete=models.CASCADE,
         related_name='reviews',
     )
