@@ -3,8 +3,6 @@ from django.db import models
 from titles.models import Title
 from user.models import CustomUser
 
-User = get_user_model()
-
 
 class Reviews(models.Model):
     text = models.CharField(max_length=200)
