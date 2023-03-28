@@ -3,7 +3,6 @@ from django.db import models
 from titles.models import Title
 from user.models import CustomUser
 
-
 class Reviews(models.Model):
     text = models.CharField(max_length=200)
     pub_date = models.DateTimeField(auto_now_add=True)
