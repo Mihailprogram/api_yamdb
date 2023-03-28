@@ -3,6 +3,7 @@ from django.urls import include, path
 from django.views.generic import TemplateView
 from django.urls import include, path
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('reviews.urls')),
@@ -11,4 +12,5 @@ urlpatterns = [
         TemplateView.as_view(template_name='redoc.html'),
         name='redoc'
     ),
+    path('api/v1/user/', include("user.urls"))
 ]
