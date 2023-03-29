@@ -28,9 +28,10 @@ class UsersViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
     permission_classes = (IsAuthenticated, AdminOnly)
-    lookup_field = 'username'
-    filter_backends = (SearchFilter, )
-    search_fields = ('username', )
+    filter_backends = (SearchFilter,)
+    search_fields = ("username",)
+    lookup_field = "username"
+    http_method_names = ("get", "post", "delete", "patch")
 
     @action(
         methods=['GET', 'PATCH'],
