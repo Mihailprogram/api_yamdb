@@ -4,11 +4,9 @@ from datetime import timedelta
 
 BASE_DIR = path.dirname(path.dirname(path.abspath(__file__)))
 
-# SECRET_KEY = 'p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs'  
-# На случай, если не знаете что делать
-SECRET_KEY = getenv('SECRET_KEY')
+SECRET_KEY = 'p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs'
 
-DEBUG = getenv('DEBUG')
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 

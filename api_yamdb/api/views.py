@@ -104,7 +104,7 @@ class APISignup(APIView):
             serializer.data,
             status=status.HTTP_200_OK
         )
-    
+
     @staticmethod
     def send_email(data):
         email = EmailMessage(

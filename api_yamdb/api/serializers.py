@@ -1,4 +1,5 @@
-from rest_framework.serializers import (ModelSerializer, CharField, IntegerField,
+from rest_framework.serializers import (ModelSerializer, CharField,
+                                        IntegerField,
                                         SlugRelatedField)
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
@@ -18,7 +19,7 @@ class NotAdminSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'username', 'email', 'first_name',  'last_name', 'bio', 'role'
+            'username', 'email', 'first_name', 'last_name', 'bio', 'role'
         )
         read_only_fields = ('role', )
 
@@ -90,16 +91,16 @@ class ReviewSerializer(ModelSerializer):
 
     def validate_score(self, value):
         if 0 > value > 10:
-            raise ValidationError('Оценка должна происходить по 10-бальной шкале!')
+            raise ValidationError('Оценка должна быть по 10-бальной шкале!')
         return value
 
     def validate(self, data):
         request = self.context['request']
         title_id = self.context.get('view').kwargs.get('title_id')
         title = get_object_or_404(Title, pk=title_id)
-        if (request.method == 'POST' and 
-            Review.objects.filter(title=title, author=request.user).exists()
-        ):
+        if (request.method == 'POST'
+            and Review.objects.filter(
+                title=title, author=request.user).exists()):
             raise ValidationError('Вы можете оставить только один отзыв!')
         return data
 
