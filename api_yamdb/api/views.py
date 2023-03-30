@@ -25,6 +25,7 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           NotAdminSerializer, RegistrationSerializer,
                           ReviewSerializer, TitleReadSerializer,
                           TitleWriteSerializer, UsersSerializer,)
+from reviews.management.load_data import Command
 
 
 class SignUpApiView(APIView):
