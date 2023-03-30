@@ -54,4 +54,10 @@ class Command(BaseCommand):
                             Comment.objects.create(**data)             
                 except Exception as err:          
                     print(err)
-        return None
+                try:
+                    model.objects.bulk_create(
+                        model(**data) for data in reader
+                    )
+                except Exception as err:
+                    print(err)    
+        return True
