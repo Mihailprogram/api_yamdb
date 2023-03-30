@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import status
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -24,31 +24,32 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           TitleWriteSerializer, UsersSerializer,
                           RegistrationSerializer)
 from django.db import IntegrityError
-from django.forms import ValidationError
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 
 
-@api_view(['POST'])
-def register_user(request):
-    """Функция регистрации user, генерации и отправки кода на почту"""
-
-    serializer = RegistrationSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    try:
-        user, _ = User.objects.get_or_create(**serializer.validated_data)
-    except IntegrityError:
-        raise ValidationError(
-            'username или email заняты!', status.HTTP_400_BAD_REQUEST
+class SignUpApiView(APIView):
+    def post(self, request):
+        serializer = RegistrationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            username = serializer.validated_data.get('username')
+            email = serializer.validated_data.get('email')
+            user, _ = User.objects.get_or_create(
+                username=username,
+                email=email
+            )
+        except IntegrityError:
+            return Response('Это имя или email уже занято',
+                            status.HTTP_400_BAD_REQUEST)
+        code = default_token_generator.make_token(user)
+        send_mail(
+            'Код токена',
+            f'Код для получения токена {code}',
+            'YaTubeMDb@yamdb.ru',
+            [serializer.validated_data.get('email')]
         )
-    confirmation_code = default_token_generator.make_token(user)
-    send_mail(
-        subject='Регистрация в проекте YaMDb.',
-        message=f'Ваш код подтверждения: {confirmation_code}',
-        from_email='YaTubeMDb@yamdb.ru',
-        recipient_list=[user.email]
-    )
-    return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UsersViewSet(ModelViewSet):
