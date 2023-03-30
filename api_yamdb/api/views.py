@@ -1,31 +1,30 @@
-from django.core.mail import EmailMessage
-from django.db.models import Avg
-from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
-
 from reviews.models import Category, Genre, Review, Title, User
-from api.filters import TitleFilter
-from .mixins import ModelMixinSet
-from .permissions import (AdminModeratorAuthorPermission, AdminOnly,
-                          IsAdminUserOrReadOnly)
-from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, GetTokenSerializer,
-                          NotAdminSerializer, ReviewSerializer,
-                          SignUpSerializer, TitleReadSerializer,
-                          TitleWriteSerializer, UsersSerializer,
-                          RegistrationSerializer)
-from django.db import IntegrityError
+
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db import IntegrityError
+from django.db.models import Avg
+from django.shortcuts import get_object_or_404
+
+from api.filters import TitleFilter
+
+from .mixins import ModelMixinSet
+from .permissions import (AdminModeratorAuthorPermission, AdminOnly,
+                          IsAdminUserOrReadOnly,)
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, GetTokenSerializer,
+                          NotAdminSerializer, RegistrationSerializer,
+                          ReviewSerializer, TitleReadSerializer,
+                          TitleWriteSerializer, UsersSerializer,)
 
 
 class SignUpApiView(APIView):
@@ -109,38 +108,6 @@ class APIGetToken(APIView):
         return Response(
             {'confirmation_code': 'Неверный код подтверждения!'},
             status=status.HTTP_400_BAD_REQUEST
-        )
-
-
-class APISignup(APIView):
-    permission_classes = (AllowAny, )
-
-    @staticmethod
-    def send_email(data):
-        email = EmailMessage(
-            subject=data['email_subject'],
-            body=data['email_body'],
-            to=[data['to_email']]
-        )
-        email.send()
-
-    def post(self, request):
-        serializer = SignUpSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        email_body = (
-            f'Приветствую тебя, {user.username}.'
-            f'\nКод подтверждения: {user.confirmation_code}'
-        )
-        data = {
-            'to_email': user.email,
-            'email_body': email_body,
-            'email_subject': 'Код подтверждения для доступа к API.'
-        }
-        self.send_email(data)
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK
         )
 
 
