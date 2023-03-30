@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -21,21 +21,49 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, GetTokenSerializer,
                           NotAdminSerializer, ReviewSerializer,
                           SignUpSerializer, TitleReadSerializer,
-                          TitleWriteSerializer, UsersSerializer)
+                          TitleWriteSerializer, UsersSerializer,
+                          RegistrationSerializer)
+from django.db import IntegrityError
+from django.forms import ValidationError
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+
+
+@api_view(['POST'])
+def register_user(request):
+    """Функция регистрации user, генерации и отправки кода на почту"""
+
+    serializer = RegistrationSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    try:
+        user, _ = User.objects.get_or_create(**serializer.validated_data)
+    except IntegrityError:
+        raise ValidationError(
+            'username или email заняты!', status.HTTP_400_BAD_REQUEST
+        )
+    confirmation_code = default_token_generator.make_token(user)
+    send_mail(
+        subject='Регистрация в проекте YaMDb.',
+        message=f'Ваш код подтверждения: {confirmation_code}',
+        from_email='YaTubeMDb@yamdb.ru',
+        recipient_list=[user.email]
+    )
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UsersViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
-    permission_classes = (IsAuthenticated, AdminOnly)
+    permission_classes = (IsAuthenticated, AdminOnly,)
     lookup_field = 'username'
     filter_backends = (SearchFilter, )
     search_fields = ('username', )
+    http_method_names = ("get", "post", "delete", "patch")
 
     @action(
         methods=['GET', 'PATCH'],
         detail=False,
-        permission_classes=(IsAuthenticated, ),
+        permission_classes=(IsAuthenticated,),
         url_path='me')
     def get_current_user_info(self, request):
         serializer = UsersSerializer(request.user)
@@ -86,6 +114,15 @@ class APIGetToken(APIView):
 class APISignup(APIView):
     permission_classes = (AllowAny, )
 
+    @staticmethod
+    def send_email(data):
+        email = EmailMessage(
+            subject=data['email_subject'],
+            body=data['email_body'],
+            to=[data['to_email']]
+        )
+        email.send()
+
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -104,15 +141,6 @@ class APISignup(APIView):
             serializer.data,
             status=status.HTTP_200_OK
         )
-
-    @staticmethod
-    def send_email(data):
-        email = EmailMessage(
-            subject=data['email_subject'],
-            body=data['email_body'],
-            to=[data['to_email']]
-        )
-        email.send()
 
 
 class GenreViewSet(ModelMixinSet):
