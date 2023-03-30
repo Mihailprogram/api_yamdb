@@ -5,6 +5,15 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
+from rest_framework import serializers
+from reviews.validators import ValidateUsername
+
+
+class RegistrationSerializer(serializers.Serializer, ValidateUsername):
+    """Сериализатор регистрации User"""
+
+    username = serializers.CharField(required=True, max_length=150)
+    email = serializers.EmailField(required=True, max_length=254)
 
 
 class UsersSerializer(ModelSerializer):
@@ -34,9 +43,20 @@ class GetTokenSerializer(ModelSerializer):
 
 
 class SignUpSerializer(ModelSerializer):
+
     class Meta:
         model = User
         fields = ('email', 'username')
+
+    def validate(self, data):
+        if data['username'] == 'me':
+            raise serializers.ValidationError(
+                'Имя пользователя "me" не доступно')
+        if User.objects.filter(email=data['email']).exists():
+            raise serializers.ValidationError('Такой email уже существует')
+        if User.objects.filter(username=data['username']).exists():
+            raise serializers.ValidationError('Имя пользователя уже занято')
+        return data
 
 
 class GenreSerializer(ModelSerializer):

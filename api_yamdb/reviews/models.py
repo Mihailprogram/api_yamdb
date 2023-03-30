@@ -19,34 +19,45 @@ MODERATOR = 'moderator'
 ROLE_CHOICES = [
     (USER, USER),
     (ADMIN, ADMIN),
-    (MODERATOR, MODERATOR)
+    (MODERATOR, MODERATOR),
 ]
 
 
 class User(AbstractUser):
     username = CharField(
-        max_length=50,
+        validators=(validate_username,),
+        max_length=150,
         unique=True,
         blank=False,
-        null=False,
-        validators=(validate_username, )
+        null=False
     )
     email = EmailField(
-        max_length=100,
+        max_length=254,
         unique=True,
         blank=False,
         null=False
     )
     role = CharField(
-        'Роль',
+        'роль',
         max_length=20,
         choices=ROLE_CHOICES,
         default=USER,
         blank=True
     )
-    bio = TextField('Автобиография', blank=True)
-    first_name = CharField('Имя', max_length=50, blank=True)
-    last_name = CharField('Фамилия', max_length=50, blank=True)
+    bio = TextField(
+        'биография',
+        blank=True,
+    )
+    first_name = CharField(
+        'имя',
+        max_length=150,
+        blank=True
+    )
+    last_name = CharField(
+        'фамилия',
+        max_length=150,
+        blank=True
+    )
     confirmation_code = CharField(
         'код подтверждения',
         max_length=255,
@@ -68,7 +79,7 @@ class User(AbstractUser):
         return self.role == MODERATOR
 
     class Meta:
-        ordering = ('id', )
+        ordering = ('id',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 

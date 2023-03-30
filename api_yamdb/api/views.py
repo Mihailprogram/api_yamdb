@@ -21,23 +21,50 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, GetTokenSerializer,
                           NotAdminSerializer, ReviewSerializer,
                           SignUpSerializer, TitleReadSerializer,
-                          TitleWriteSerializer, UsersSerializer)
-from reviews.management.load_data import Command
+                          TitleWriteSerializer, UsersSerializer,
+                          RegistrationSerializer)
+from django.db import IntegrityError
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+
+
+class SignUpApiView(APIView):
+    def post(self, request):
+        serializer = RegistrationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            username = serializer.validated_data.get('username')
+            email = serializer.validated_data.get('email')
+            user, _ = User.objects.get_or_create(
+                username=username,
+                email=email
+            )
+        except IntegrityError:
+            return Response('Это имя или email уже занято',
+                            status.HTTP_400_BAD_REQUEST)
+        code = default_token_generator.make_token(user)
+        send_mail(
+            'Код токена',
+            f'Код для получения токена {code}',
+            'YaTubeMDb@yamdb.ru',
+            [serializer.validated_data.get('email')]
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UsersViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
-    permission_classes = (IsAuthenticated, AdminOnly)
-    filter_backends = (SearchFilter,)
-    search_fields = ("username",)
-    lookup_field = "username"
+    permission_classes = (IsAuthenticated, AdminOnly,)
+    lookup_field = 'username'
+    filter_backends = (SearchFilter, )
+    search_fields = ('username', )
     http_method_names = ("get", "post", "delete", "patch")
 
     @action(
         methods=['GET', 'PATCH'],
         detail=False,
-        permission_classes=(IsAuthenticated, ),
+        permission_classes=(IsAuthenticated,),
         url_path='me')
     def get_current_user_info(self, request):
         serializer = UsersSerializer(request.user)
@@ -88,6 +115,15 @@ class APIGetToken(APIView):
 class APISignup(APIView):
     permission_classes = (AllowAny, )
 
+    @staticmethod
+    def send_email(data):
+        email = EmailMessage(
+            subject=data['email_subject'],
+            body=data['email_body'],
+            to=[data['to_email']]
+        )
+        email.send()
+
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -106,15 +142,6 @@ class APISignup(APIView):
             serializer.data,
             status=status.HTTP_200_OK
         )
-
-    @staticmethod
-    def send_email(data):
-        email = EmailMessage(
-            subject=data['email_subject'],
-            body=data['email_body'],
-            to=[data['to_email']]
-        )
-        email.send()
 
 
 class GenreViewSet(ModelMixinSet):
