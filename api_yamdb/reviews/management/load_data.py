@@ -46,4 +46,3 @@ class Command(BaseCommand):
                     model(**data) for data in reader
                 )
         return True
-    
