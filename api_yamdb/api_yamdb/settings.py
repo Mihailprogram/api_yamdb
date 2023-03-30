@@ -1,6 +1,5 @@
-from os import getenv, path
 from datetime import timedelta
-
+from os import getenv, path
 
 BASE_DIR = path.dirname(path.dirname(path.abspath(__file__)))
 
@@ -110,7 +109,7 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'YaTubeMDb@yamdb.ru'
 
 EMAIL_HOST_USER = getenv('EMAIL_HOST_USER')
 
