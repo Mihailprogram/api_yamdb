@@ -36,7 +36,7 @@ class Command(BaseCommand):
                             data['category'] = Category.objects.get(id=cat_id)
                             Title.objects.create(**data)
                 except Exception as err:          
-                    print(err)
+                    return False
                 try:
                     if csv_f == 'review.csv':
                         for data in reader:
@@ -45,7 +45,7 @@ class Command(BaseCommand):
                             data['author'] = User.objects.get(id=author_id)
                             Review.objects.create(**data)
                 except Exception as err:          
-                    print(err)
+                    return False
                 try:
                     if csv_f == 'comments.csv':
                         for data in reader:                            
@@ -53,11 +53,11 @@ class Command(BaseCommand):
                             data['author'] = User.objects.get(id=author_id)   
                             Comment.objects.create(**data)             
                 except Exception as err:          
-                    print(err)
+                    return False
                 try:
                     model.objects.bulk_create(
                         model(**data) for data in reader
                     )
                 except Exception as err:
-                    print(err)    
+                    return False
         return True
