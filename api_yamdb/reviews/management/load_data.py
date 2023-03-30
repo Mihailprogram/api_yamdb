@@ -16,14 +16,47 @@ TABLES = {
 
 
 class Command(BaseCommand):
+
     def handle(self, *args, **kwargs):
+        print(f'here ==', len(TABLES))
         for model, csv_f in TABLES.items():
+            print(f'model={model}, file={csv_f}')
             with open(
                 f'{settings.BASE_DIR}/static/data/{csv_f}',
                 'r',
                 encoding='utf-8'
             ) as csv_file:
                 reader = DictReader(csv_file)
-                model.objects.bulk_create(
-                    model(**data) for data in reader)
-        self.stdout.write(self.style.SUCCESS('Все данные были загружены.'))
+                print(model)
+                try:
+                    if csv_f == 'titles.csv':
+                        for data in reader:
+                            cat_id = data.get('category')
+                            data['category'] = Category.objects.get(id=cat_id)
+                            Title.objects.create(**data)
+                except Exception as err:          
+                    return False
+                try:
+                    if csv_f == 'review.csv':
+                        for data in reader:
+                            print(data)
+                            author_id = data['author']
+                            data['author'] = User.objects.get(id=author_id)
+                            Review.objects.create(**data)
+                except Exception as err:          
+                    return False
+                try:
+                    if csv_f == 'comments.csv':
+                        for data in reader:                            
+                            author_id = data['author']
+                            data['author'] = User.objects.get(id=author_id)   
+                            Comment.objects.create(**data)             
+                except Exception as err:          
+                    return False
+                try:
+                    model.objects.bulk_create(
+                        model(**data) for data in reader
+                    )
+                except Exception as err:
+                    return False
+        return True

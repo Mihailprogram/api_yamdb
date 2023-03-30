@@ -181,3 +181,12 @@ class ReviewViewSet(ModelViewSet):
             author=self.request.user,
             title=title
         )
+
+
+class APILoadData(APIView):
+
+    def post(self, request):
+        print('here')
+        if Command.handle(self):
+            return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
