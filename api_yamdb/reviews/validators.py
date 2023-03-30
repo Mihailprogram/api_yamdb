@@ -1,10 +1,8 @@
+import re
 from re import search
 
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-
-import re
-from django.core.exceptions import ValidationError
 
 
 class ValidateUsername:

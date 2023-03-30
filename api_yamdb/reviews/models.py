@@ -1,16 +1,14 @@
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.tokens import default_token_generator
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db.models import (Model, CharField, EmailField, TextField,
-                              SlugField,
-                              IntegerField, ForeignKey, SET_NULL,
-                              ManyToManyField,
-                              CASCADE, DateTimeField, UniqueConstraint)
+from django.db.models import (CASCADE, SET_NULL, CharField, DateTimeField,
+                              EmailField, ForeignKey, IntegerField,
+                              ManyToManyField, Model, SlugField, TextField,
+                              UniqueConstraint,)
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from .validators import validate_username, validate_year
-
 
 USER = 'user'
 ADMIN = 'admin'
