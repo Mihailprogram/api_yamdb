@@ -173,7 +173,7 @@ class ReviewViewSet(ModelViewSet):
         title = get_object_or_404(
             Title,
             id=self.kwargs.get('title_id'))
-        return title.reviews.all()
+        return title.reviews.all().select_related('author')
 
     def perform_create(self, serializer):
         title = get_object_or_404(
