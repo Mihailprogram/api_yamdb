@@ -1,10 +1,9 @@
 from rest_framework.routers import SimpleRouter
 
 from django.urls import include, path
-
-from .views import (APIGetToken, APILoadData, CategoryViewSet, CommentViewSet,
-                    GenreViewSet, ReviewViewSet, SignUpApiView, TitleViewSet,
-                    UsersViewSet,)
+from .views import (APIGetToken, CategoryViewSet, CommentViewSet,
+                    GenreViewSet, ReviewViewSet, TitleViewSet, UsersViewSet,
+                    SignUpApiView)
 
 app_name = 'api'
 
@@ -29,5 +28,4 @@ urlpatterns = [
     path('v1/', include(router.urls)),
     path('v1/auth/token/', APIGetToken.as_view(), name='get_token'),
     path('v1/auth/signup/', SignUpApiView.as_view(), name='signup'),
-    path('v1/load_data/', APILoadData.as_view(), name='signup')
 ]

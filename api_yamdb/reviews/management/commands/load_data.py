@@ -45,4 +45,4 @@ class Command(BaseCommand):
                 model.objects.bulk_create(
                     model(**data) for data in reader
                 )
-        return True
+        self.stdout.write(self.style.SUCCESS('Все данные загружены'))
