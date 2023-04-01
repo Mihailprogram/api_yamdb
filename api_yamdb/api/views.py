@@ -125,7 +125,7 @@ class GenreViewSet(ModelMixinSet):
 class TitleViewSet(ModelViewSet):
     queryset = Title.objects.annotate(
         rating=Avg('reviews__score')
-    ).all()
+    ).select_related('category').prefetch_related('genre')
     permission_classes = (IsAdminUserOrReadOnly,)
     filter_backends = (DjangoFilterBackend, )
     filterset_class = TitleFilter
@@ -144,7 +144,7 @@ class CommentViewSet(ModelViewSet):
         review = get_object_or_404(
             Review,
             id=self.kwargs.get('review_id'))
-        return review.comments.all().select_related('author')
+        return review.comments.select_related('author')
 
     def perform_create(self, serializer):
         review = get_object_or_404(
@@ -173,7 +173,7 @@ class ReviewViewSet(ModelViewSet):
         title = get_object_or_404(
             Title,
             id=self.kwargs.get('title_id'))
-        return title.reviews.all().select_related('author')
+        return title.reviews.select_related('author')
 
     def perform_create(self, serializer):
         title = get_object_or_404(
