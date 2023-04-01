@@ -16,7 +16,6 @@ from django.shortcuts import get_object_or_404
 
 from api.filters import TitleFilter
 from api_yamdb.settings import EMAIL_HOST
-from reviews.management.load_data import Command
 from reviews.models import Category, Genre, Review, Title, User
 
 from .mixins import ModelMixinSet
