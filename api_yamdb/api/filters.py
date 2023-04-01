@@ -1,5 +1,6 @@
 from django_filters import FilterSet
 from django_filters.filters import CharFilter, NumberFilter
+
 from reviews.models import Title
 
 
@@ -18,9 +19,9 @@ class TitleFilter(FilterSet):
     )
     year = NumberFilter(
         field_name='year',
-        lookup_expr='icontains'
+        lookup_expr='exact'
     )
 
     class Meta:
         model = Title
-        fields = '__all__'
+        fields = ('name', 'category', 'genre', 'year')

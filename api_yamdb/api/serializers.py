@@ -1,11 +1,12 @@
 from rest_framework import serializers
 from rest_framework.serializers import (CharField, IntegerField,
                                         ModelSerializer, SlugRelatedField,)
-from reviews.models import Category, Comment, Genre, Review, Title, User
-from reviews.validators import ValidateUsername
 
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
+
+from reviews.models import Category, Comment, Genre, Review, Title, User
+from reviews.validators import ValidateUsername
 
 
 class RegistrationSerializer(serializers.Serializer, ValidateUsername):
@@ -43,9 +44,9 @@ class GetTokenSerializer(ModelSerializer):
 
 class GenreSerializer(ModelSerializer):
     class Meta:
-        exclude = ('id', )
         model = Genre
         lookup_field = 'slug'
+        fields = ('name', 'slug')
 
 
 class CategorySerializer(ModelSerializer):
@@ -67,18 +68,20 @@ class TitleWriteSerializer(ModelSerializer):
     )
 
     class Meta:
-        fields = '__all__'
+        fields = fields = ('id', 'name', 'year',
+                           'description', 'genre', 'category')
         model = Title
 
 
 class TitleReadSerializer(ModelSerializer):
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(read_only=True, many=True)
-    rating = IntegerField(read_only=True)
+    rating = IntegerField(read_only=True, default=1)
 
     class Meta:
-        fields = '__all__'
         model = Title
+        fields = ('id', 'name', 'year', 'description', 'genre', 'category',
+                  'rating')
 
 
 class ReviewSerializer(ModelSerializer):
@@ -107,7 +110,7 @@ class ReviewSerializer(ModelSerializer):
         return data
 
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'text', 'title', 'author', 'score', 'pub_date')
         model = Review
 
 
@@ -116,5 +119,5 @@ class CommentSerializer(ModelSerializer):
     author = SlugRelatedField(slug_field='username', read_only=True)
 
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'text', 'pub_date', 'author', 'review')
         model = Comment

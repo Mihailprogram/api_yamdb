@@ -1,4 +1,5 @@
 from rest_framework.routers import SimpleRouter
+
 from django.urls import include, path
 from .views import (APIGetToken, CategoryViewSet, CommentViewSet,
                     GenreViewSet, ReviewViewSet, TitleViewSet, UsersViewSet,
