@@ -39,3 +39,7 @@ def validate_year(value):
         raise ValidationError(
             f'{value} не может быть больше {now}'
         )
+    if len(str(value).split('-')[0]) == 0:
+        raise ValidationError(
+            f'{value} не может быть отрицательным'
+        )
