@@ -32,7 +32,6 @@ class Command(BaseCommand):
                         Title.objects.create(**data)
                 if csv_f == 'review.csv':
                     for data in reader:
-                        print(data)
                         author_id = data['author']
                         data['author'] = User.objects.get(id=author_id)
                         Review.objects.create(**data)
